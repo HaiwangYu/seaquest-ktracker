@@ -157,6 +157,17 @@ Hit SRawEvent::getHit(Short_t detectorID, Short_t elementID)
     return dummy;
 }
 
+Hit SRawEvent::getTriggerHit(Short_t detectorID, Short_t elementID)
+{
+    for(UInt_t i = 0; i < fTriggerHits.size(); ++i)
+    {
+        if(fTriggerHits[i].detectorID == detectorID && fTriggerHits[i].elementID == elementID) return fTriggerHits[i];
+    }
+
+    Hit dummy;
+    return dummy;
+}
+
 std::list<Int_t> SRawEvent::getHitsIndexInDetector(Short_t detectorID)
 {
     std::list<Int_t> hit_list;

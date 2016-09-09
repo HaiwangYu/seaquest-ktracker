@@ -115,6 +115,7 @@ public:
     std::vector<Hit>& getAllHits() { return fAllHits; }
     std::vector<Hit>& getTriggerHits() { return fTriggerHits; }
     Hit getTriggerHit(Int_t index) { return fTriggerHits[index]; }
+    Hit getTriggerHit(Short_t detectorID, Short_t elementID);
     Hit getHit(Int_t index) { return fAllHits[index]; }
     Hit getHit(Short_t detectorID, Short_t elementID);
     void setHitFlag(Int_t index, Short_t flag) { if(index < 0) return; fAllHits[index].setFlag(flag); }
