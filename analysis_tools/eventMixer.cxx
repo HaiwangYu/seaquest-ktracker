@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
     //Initialize job options
     JobOptsSvc* jobOptsSvc = JobOptsSvc::instance();
     jobOptsSvc->init(argv[1]);
+    jobOptsSvc->m_enableOnlineAlignment = false;
 
     GeomSvc* p_geomSvc = GeomSvc::instance();
     p_geomSvc->init();
@@ -77,10 +78,10 @@ int main(int argc, char *argv[])
 
     //Load spill info
     map<int, Spill> spillBank;
-    if(argc > 6) //spill info are provided
+    if(argc > 7) //spill info are provided
     {
         Spill* p_spill = new Spill; Spill& spill = *p_spill;
-        TFile* spillFile = new TFile(argv[6]);
+        TFile* spillFile = new TFile(argv[7]);
         TTree* spillTree = (TTree*)spillFile->Get("save");
 
         spillTree->SetBranchAddress("spill", &p_spill);
@@ -90,7 +91,7 @@ int main(int argc, char *argv[])
             if(spill.goodSpill()) spillBank.insert(map<int, Spill>::value_type(spill.spillID, spill));
         }
 
-        cout << "Loaded " << spillBank.size() << " spills from " << argv[6] << endl;
+        cout << "Loaded " << spillBank.size() << " spills from " << argv[7] << endl;
     }
 
     //Event pre-processor
@@ -98,24 +99,16 @@ int main(int argc, char *argv[])
     EventReducer* reducer2 = new EventReducer("e");  //for Bkg
 
     TFile* mcFile = new TFile(argv[2], "READ");
-    TTree* mcTree = (TTree*)mcFile->Get("save");
+    TTree* mcTreeOrig = (TTree*)mcFile->Get("save");
 
     SRawMCEvent* mcEvent = new SRawMCEvent();
-    mcTree->SetBranchAddress("rawEvent", &mcEvent);
+    mcTreeOrig->SetBranchAddress("rawEvent", &mcEvent);
 
     TFile* bkgFile = new TFile(argv[3], "READ");
     TTree* bkgTree = (TTree*)bkgFile->Get("save");
 
     SRawEvent* bkgEvent = new SRawEvent();
     bkgTree->SetBranchAddress("rawEvent", &bkgEvent);
-
-    //generate a random set of eventID pairs
-    vector<eventPair> eventIDs;
-    generateEventIDPairs(mcTree->GetEntries(), bkgTree->GetEntries(), eventIDs);
-
-    //clean output
-    TFile* saveFile1 = new TFile(argv[4], "recreate");
-    TTree* saveTree1 = mcTree->CloneTree(0);
 
     //messy output
     TFile* saveFile2 = new TFile(argv[5], "recreate");
@@ -124,6 +117,17 @@ int main(int argc, char *argv[])
     SRawMCEvent* rawEvent = new SRawMCEvent();
     saveTree2->Branch("rawEvent", &rawEvent, 256000, 99);
 
+    //Filter the events by kinematics
+    TTree* mcTree = argc > 6 ? mcTreeOrig->CopyTree(argv[6]) : mcTreeOrig;
+    mcTree->SetBranchAddress("rawEvent", &mcEvent);
+
+    //clean output, the order of the code is very tricky
+    TFile* saveFile1 = new TFile(argv[4], "recreate");
+    TTree* saveTree1 = mcTree->CloneTree(0);
+
+    //generate a random set of eventID pairs
+    vector<eventPair> eventIDs;
+    generateEventIDPairs(mcTree->GetEntries(), bkgTree->GetEntries(), eventIDs);
     for(int i = 0; i < eventIDs.size(); ++i)
     {
         mcTree->GetEntry(eventIDs[i].first);
@@ -134,7 +138,7 @@ int main(int argc, char *argv[])
         mcEvent->setEventInfo(bkgEvent);
 
         //strip MC events to simulate efficiency, update the alignment parameters for the bkg events
-        if(argc > 6) reducer1->setChamEff(0.94*(1. - 0.1*mcEvent->getIntensity()*spillBank[bkgEvent->getSpillID()].QIEUnit()));
+        //if(argc > 7) reducer1->setChamEff(0.94*(1. - 0.1*mcEvent->getIntensity()*spillBank[bkgEvent->getSpillID()].QIEUnit()));
         reducer1->reduceEvent(mcEvent);
         reducer2->reduceEvent(bkgEvent);
 
