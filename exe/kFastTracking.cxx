@@ -134,8 +134,8 @@ int main(int argc, char* argv[])
         cout << "kFastTracking::Processing event: " << i << endl;
         cout
 				<< "runID: " << rawEvent->getRunID()
-				<< "spillID: " << rawEvent->getSpillID()
-				<< "eventID: " << rawEvent->getEventID()
+				<< " | spillID: " << rawEvent->getSpillID()
+				<< " | eventID: " << rawEvent->getEventID()
 				<< endl;
 #endif
 
