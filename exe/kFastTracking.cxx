@@ -130,6 +130,15 @@ int main(int argc, char* argv[])
     {
         dataTree->GetEntry(i);
 
+#ifdef _DEBUG_ON
+        cout << "kFastTracking::Processing event: " << i << endl;
+        cout
+				<< "runID: " << rawEvent->getRunID()
+				<< "spillID: " << rawEvent->getSpillID()
+				<< "eventID: " << rawEvent->getEventID()
+				<< endl;
+#endif
+
         const double fracDone = (i - offset + 1)*100/(nEvtMax - offset);
         if(0 == i % printFreq)
         {
@@ -152,9 +161,7 @@ int main(int argc, char* argv[])
 
         nTracklets = 0;
         recEvent->setRawEvent(rawEvent);
-#ifdef _DEBUG_ON
-        cout << "kFastTracking::Processing event: " << i << endl;
-#endif
+
         for(std::list<Tracklet>::iterator iter = rec_tracklets.begin(); iter != rec_tracklets.end(); ++iter)
         {
             iter->calcChisq();
