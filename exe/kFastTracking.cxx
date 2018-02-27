@@ -28,6 +28,8 @@
 
 using namespace std;
 
+#define _DEBUG_ON
+
 int main(int argc, char* argv[])
 {
     //Initialization
@@ -153,12 +155,17 @@ int main(int argc, char* argv[])
         for(std::list<Tracklet>::iterator iter = rec_tracklets.begin(); iter != rec_tracklets.end(); ++iter)
         {
             iter->calcChisq();
-            //iter->print();
+#ifdef _DEBUG_ON
+            iter->print();
+#endif
             new(arr_tracklets[nTracklets]) Tracklet(*iter);
             ++nTracklets;
 
 #ifndef _ENABLE_KF
             SRecTrack recTrack = iter->getSRecTrack();
+#ifdef _DEBUG_ON
+            recTrack.print();
+#endif
             recEvent->insertTrack(recTrack);
 #endif
         }
