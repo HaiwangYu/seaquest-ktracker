@@ -152,10 +152,14 @@ int main(int argc, char* argv[])
 
         nTracklets = 0;
         recEvent->setRawEvent(rawEvent);
+#ifdef _DEBUG_ON
+        cout << "kFastTracking::Processing event: " << i << endl;
+#endif
         for(std::list<Tracklet>::iterator iter = rec_tracklets.begin(); iter != rec_tracklets.end(); ++iter)
         {
             iter->calcChisq();
 #ifdef _DEBUG_ON
+            cout << "Tracklet::print():" << endl;
             iter->print();
 #endif
             new(arr_tracklets[nTracklets]) Tracklet(*iter);
@@ -163,9 +167,6 @@ int main(int argc, char* argv[])
 
 #ifndef _ENABLE_KF
             SRecTrack recTrack = iter->getSRecTrack();
-#ifdef _DEBUG_ON
-            recTrack.print();
-#endif
             recEvent->insertTrack(recTrack);
 #endif
         }
@@ -176,6 +177,10 @@ int main(int argc, char* argv[])
         {
             //iter->print();
             recEvent->insertTrack(*iter);
+#ifdef _DEBUG_ON
+            cout << "SRecTrack::print():" << endl;
+            (*iter).print();
+#endif
         }
 #endif
 
