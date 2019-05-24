@@ -132,11 +132,8 @@ int main(int argc, char* argv[])
 
 #ifdef _DEBUG_ON
         cout << "kFastTracking::Processing event: " << i << endl;
-        cout
-				<< "runID: " << rawEvent->getRunID()
-				<< " | spillID: " << rawEvent->getSpillID()
-				<< " | eventID: " << rawEvent->getEventID()
-				<< endl;
+        cout << "SRawEvent before the Reducer" << endl;
+        rawEvent->print();
 #endif
 
         const double fracDone = (i - offset + 1)*100/(nEvtMax - offset);
@@ -153,6 +150,13 @@ int main(int argc, char* argv[])
         *orgEvent = *rawEvent;
         eventReducer->reduceEvent(rawEvent);
         orgEvReducer->reduceEvent(orgEvent);
+
+#ifdef _DEBUG_ON
+        cout << "kFastTracking::Processing event: " << i << endl;
+        cout << "SRawEvent after the Reducer" << endl;
+        rawEvent->print();
+#endif
+
         recEvent->setRecStatus(fastfinder->setRawEvent(rawEvent));
 
         //Fill the TClonesArray

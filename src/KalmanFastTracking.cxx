@@ -20,6 +20,8 @@ Created: 05-28-2013
 #include "KalmanFastTracking.h"
 #include "TriggerRoad.h"
 
+//#define _DEBUG_ON
+
 KalmanFastTracking::KalmanFastTracking(bool flag) : enable_KF(flag)
 {
     using namespace std;
@@ -369,6 +371,8 @@ int KalmanFastTracking::setRawEvent(SRawEvent* event_input)
 
     //Build tracklets in station 2, 3+, 3-
     buildTrackletsInStation(3, 1);   //3 for station-2, 1 for list position 1
+    LogInfo("NTracklets in St2: " << trackletsInSt[1].size());
+
     if(trackletsInSt[1].empty())
     {
 #ifdef _DEBUG_ON
@@ -379,6 +383,8 @@ int KalmanFastTracking::setRawEvent(SRawEvent* event_input)
 
     buildTrackletsInStation(4, 2);   //4 for station-3+
     buildTrackletsInStation(5, 2);   //5 for station-3-
+    LogInfo("NTracklets in St3: " << trackletsInSt[2].size());
+
     if(trackletsInSt[2].empty())
     {
 #ifdef _DEBUG_ON
@@ -389,6 +395,7 @@ int KalmanFastTracking::setRawEvent(SRawEvent* event_input)
 
     //Build back partial tracks in station 2, 3+ and 3-
     buildBackPartialTracks();
+    LogInfo("NTracklets in St23: " << trackletsInSt[3].size());
     if(trackletsInSt[3].empty())
     {
 #ifdef _DEBUG_ON
@@ -399,6 +406,7 @@ int KalmanFastTracking::setRawEvent(SRawEvent* event_input)
 
     //Connect tracklets in station 2/3 and station 1 to form global tracks
     buildGlobalTracks();
+    LogInfo("NTracklets in Global: " << trackletsInSt[4].size());
 
 #ifdef _DEBUG_ON
     for(int i = 0; i < 2; ++i)
@@ -857,8 +865,13 @@ void KalmanFastTracking::resolveLeftRight(Tracklet& tracklet, double threshold)
         ++hit2;
         ++hit2;
     }
-
+#ifdef _DEBUG_ON
+    tracklet.print();
+#endif
     if(isUpdated) fitTracklet(tracklet);
+#ifdef _DEBUG_ON
+    tracklet.print();
+#endif
 }
 
 void KalmanFastTracking::resolveSingleLeftRight(Tracklet& tracklet)
